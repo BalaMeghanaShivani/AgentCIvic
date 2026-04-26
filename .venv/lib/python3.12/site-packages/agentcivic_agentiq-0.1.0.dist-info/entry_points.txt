@@ -1,0 +1,2 @@
+[nat.plugins]
+agentcivic_agentiq = agentcivic_agentiq.register

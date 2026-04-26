@@ -1,0 +1,35 @@
+functions:
+  agentcivic_retrieve:
+    _type: agentcivic_retrieve
+    description: "Retrieve evidence cards from city metrics."
+  agentcivic_propose:
+    _type: agentcivic_propose
+    description: "Propose policies from a city state."
+  agentcivic_simulate:
+    _type: agentcivic_simulate
+    description: "Run simulation for each proposed policy."
+  agentcivic_verify:
+    _type: agentcivic_verify
+    description: "Verify simulated policies against governance constraints."
+  agentcivic_rank:
+    _type: agentcivic_rank
+    description: "Rank policies deterministically using quant metrics."
+  agentcivic_redteam:
+    _type: agentcivic_redteam
+    description: "Red-team risk review based on sim + verify results."
+  agentcivic_memo:
+    _type: agentcivic_memo
+    description: "Executive memo based on selected policy and evidence."
+
+workflow:
+  _type: sequential_executor
+  tool_list: [
+    agentcivic_retrieve,
+    agentcivic_propose,
+    agentcivic_simulate,
+    agentcivic_verify,
+    agentcivic_rank,
+    agentcivic_redteam,
+    agentcivic_memo
+  ]
+  raise_type_incompatibility: false
