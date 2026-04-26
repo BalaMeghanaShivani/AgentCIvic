@@ -32,7 +32,7 @@ export default function RootLayout({
             <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
               <div className="flex items-center gap-3">
                 <div className="h-8 w-8 rounded-lg bg-emerald-500 flex items-center justify-center font-bold text-zinc-950 shadow-[0_0_15px_rgba(16,185,129,0.4)]">
-                  FS
+                  AC
                 </div>
                 <div>
                   <h1 className="text-lg font-bold tracking-tight text-white leading-none">AgentCivic</h1>
@@ -44,6 +44,9 @@ export default function RootLayout({
               <div className="flex items-center gap-6">
                 <nav className="hidden items-center gap-5 md:flex">
                   <a href="/" className="text-sm font-medium text-zinc-400 transition-colors hover:text-white">Dashboard</a>
+                  <a href="/map" className="text-sm font-medium text-zinc-400 transition-colors hover:text-white">Equity Map</a>
+                  <a href="/feed" className="text-sm font-medium text-zinc-400 transition-colors hover:text-white">Live Feed</a>
+                  <a href="/report" className="text-sm font-medium text-zinc-400 transition-colors hover:text-white">Report Card</a>
                   <a href="/agents" className="text-sm font-medium text-zinc-400 transition-colors hover:text-white">Agent Network</a>
                   <div className="h-4 w-[1px] bg-zinc-800"></div>
                   <div className="flex items-center gap-2">

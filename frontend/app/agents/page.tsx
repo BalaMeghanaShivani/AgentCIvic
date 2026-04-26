@@ -38,7 +38,7 @@ export default function AgentNetworkPage() {
     redteam: "idle",
   });
   
-  const [omegaStatus, setOmegaStatus] = useState<AgentStatus>("idle");
+  const [asiStatus, setAsiStatus] = useState<AgentStatus>("idle");
   const [activeArrows, setActiveArrows] = useState<Record<string, boolean>>({});
   const [doneArrows, setDoneArrows] = useState<Record<string, boolean>>({});
   
@@ -73,7 +73,7 @@ export default function AgentNetworkPage() {
       verifier: "idle",
       redteam: "idle",
     });
-    setOmegaStatus("idle");
+    setAsiStatus("idle");
     setActiveArrows({});
     setDoneArrows({});
     setLogs([]);
@@ -84,28 +84,29 @@ export default function AgentNetworkPage() {
     setIsSimulation(true);
     
     // t=0
-    setOmegaStatus("processing");
-    setActiveArrows({ 'omega-orch': true });
+    setAsiStatus("processing");
+    setActiveArrows({ 'asi-orch': true });
+    addLog("ASI:One", "Orchestrator", "Query received: routing to AgentCivic Orchestrator");
     
     // t=1s
     setTimeout(() => {
       setAgents(prev => ({ ...prev, orchestrator: "processing" }));
-      addLog("OmegaClaw", "Orchestrator", "Received query from OmegaClaw");
-      setOmegaStatus("done");
-      setActiveArrows({ 'omega-orch': false });
-      setDoneArrows(prev => ({ ...prev, 'omega-orch': true }));
+      addLog("Orchestrator", "System", "Received from ASI:One, initializing pipeline");
+      setAsiStatus("done");
+      setActiveArrows({ 'asi-orch': false });
+      setDoneArrows(prev => ({ ...prev, 'asi-orch': true }));
     }, 1000);
     
     // t=2s
     setTimeout(() => {
       setActiveArrows({ 'orch-prop': true });
-      addLog("Orchestrator", "Proposer", "Requesting policy proposals for LA equity gaps");
+      addLog("Orchestrator", "Proposer", "Requesting equity policy proposals");
     }, 2000);
     
     // t=3s
     setTimeout(() => {
       setAgents(prev => ({ ...prev, proposer: "processing" }));
-      addLog("Proposer", "System", "Analyzing MyLA311 data for 102 neighborhoods");
+      addLog("Proposer", "System", "Analyzing MyLA311 data across 102 neighborhoods");
     }, 3000);
     
     // t=5s
@@ -113,13 +114,13 @@ export default function AgentNetworkPage() {
       setAgents(prev => ({ ...prev, proposer: "done" }));
       setActiveArrows({ 'orch-prop': false, 'prop-ver': true });
       setDoneArrows(prev => ({ ...prev, 'orch-prop': true }));
-      addLog("Proposer", "Verifier", "Generated 3 proposals, sending for verification");
+      addLog("Proposer", "Verifier", "3 proposals generated, sending for review");
     }, 5000);
     
     // t=6s
     setTimeout(() => {
       setAgents(prev => ({ ...prev, verifier: "processing" }));
-      addLog("Verifier", "System", "Running constitutional constraints check");
+      addLog("Verifier", "System", "Running 7 constitutional constraint checks");
     }, 6000);
     
     // t=8s
@@ -127,13 +128,13 @@ export default function AgentNetworkPage() {
       setAgents(prev => ({ ...prev, verifier: "done" }));
       setActiveArrows({ 'prop-ver': false, 'ver-red': true });
       setDoneArrows(prev => ({ ...prev, 'prop-ver': true }));
-      addLog("Verifier", "RedTeam", "Proposals verified, initiating red-team analysis");
+      addLog("Verifier", "RedTeam", "All constraints passed, initiating red-team");
     }, 8000);
     
     // t=9s
     setTimeout(() => {
       setAgents(prev => ({ ...prev, redteam: "processing" }));
-      addLog("RedTeam", "System", "Adversarially testing 3 proposals for failure modes");
+      addLog("RedTeam", "System", "Adversarially testing proposals for failure modes");
     }, 9000);
     
     // t=11s
@@ -141,7 +142,7 @@ export default function AgentNetworkPage() {
       setAgents(prev => ({ ...prev, redteam: "done" }));
       setActiveArrows({ 'ver-red': false, 'red-orch': true });
       setDoneArrows(prev => ({ ...prev, 'ver-red': true }));
-      addLog("RedTeam", "Orchestrator", "Analysis complete, 2 risks identified");
+      addLog("RedTeam", "Orchestrator", "2 risks identified, analysis complete");
     }, 11000);
     
     // t=12s
@@ -149,11 +150,13 @@ export default function AgentNetworkPage() {
       setAgents(prev => ({ ...prev, orchestrator: "done" }));
       setActiveArrows({ 'red-orch': false });
       setDoneArrows(prev => ({ ...prev, 'red-orch': true }));
-      addLog("Orchestrator", "OmegaClaw", "Policy memo ready");
+      addLog("Orchestrator", "ASI:One", "Policy memo ready, returning to gateway");
     }, 12000);
     
     // t=13s
     setTimeout(() => {
+      setAsiStatus("done");
+      addLog("ASI:One", "User", "Response delivered to user");
       setPolicy({
         equity_scores: [
           { neighborhood: "Boyle Heights", score: 0.42 },
@@ -235,7 +238,7 @@ export default function AgentNetworkPage() {
   };
 
   const getLogColor = (sender: string) => {
-    if (sender === "OmegaClaw") return "text-purple-400";
+    if (sender === "ASI:One") return "text-[#0066CC]";
     if (sender === "Orchestrator") return "text-blue-400";
     if (sender === "Proposer") return "text-emerald-400";
     if (sender === "Verifier") return "text-teal-400";
@@ -248,6 +251,15 @@ export default function AgentNetworkPage() {
     if (severity === "MEDIUM") return "bg-amber-500/20 text-amber-500 border-amber-500/30";
     return "bg-rose-500/20 text-rose-500 border-rose-500/30";
   };
+
+  const agentsList = [
+    { name: "Orchestrator", address: "agent1qtg9u5nhc7mx89j5xwx397pdz3jn05g4h4rlzkk0pg2jqu5s2h3k5jhdwwm" },
+    { name: "Proposer", address: "agent1q0ttw5lddhp90m0nr335v2m202ns358vqz3wp2ygf8xvp06ugzzyuvg3hnj" },
+    { name: "Verifier", address: "agent1qfsxk0mf8m0xg3g7l6ptnrzztsgflehh69tqnt8kdahzgfyj9v7hgp4gu7w" },
+    { name: "RedTeam", address: "agent1qgyumnxqcyfwujqyxly8gdr6xj9akvkvq24679uv6gcl9uzcwjeyglnqrue" }
+  ];
+
+  const shortenAddress = (addr: string) => `${addr.substring(0, 12)}...${addr.substring(addr.length - 2)}`;
 
   return (
     <div className="min-h-screen bg-[#0a0a0a] text-white p-6 font-sans">
@@ -263,16 +275,18 @@ export default function AgentNetworkPage() {
         }
       `}} />
 
-      {/* SECTION 1 — TOP: OmegaClaw Query Input Panel */}
+      {/* SECTION 1 — TOP: ASI:One Query Input Panel */}
       <div className="rounded-xl border border-zinc-800 bg-[#111] p-6 shadow-lg mb-6">
         <div className="flex flex-col md:flex-row items-center gap-6">
           <div className="flex items-center gap-4 shrink-0">
-            <div className="flex h-14 w-14 items-center justify-center rounded-full bg-[#7c3aed] shadow-[0_0_15px_rgba(124,58,237,0.5)]">
-              <span className="text-2xl font-bold text-white">Ω</span>
+            <div className="flex h-14 w-14 items-center justify-center rounded-full bg-[#0066CC] shadow-[0_0_15px_rgba(0,102,204,0.5)]">
+              <div className="flex h-10 w-10 items-center justify-center rounded-full border-2 border-white/80">
+                <span className="text-xl font-bold text-white">A</span>
+              </div>
             </div>
             <div>
-              <h2 className="text-xl font-black uppercase tracking-widest text-white">OMEGACLAW</h2>
-              <p className="text-sm font-medium text-zinc-400">Fetch.ai Assistant</p>
+              <h2 className="text-xl font-black uppercase tracking-widest text-white">ASI:ONE</h2>
+              <p className="text-xs font-medium text-zinc-400">Fetch.ai AI Gateway → AgentCivic Pipeline</p>
             </div>
           </div>
           
@@ -281,8 +295,8 @@ export default function AgentNetworkPage() {
               type="text" 
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder="Ask OmegaClaw about LA civic equity..."
-              className="w-full rounded-lg border border-zinc-700 bg-[#1a1a1a] px-5 py-4 text-white placeholder:text-zinc-600 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 transition-all"
+              placeholder="Ask ASI:One about LA civic equity..."
+              className="w-full rounded-lg border border-zinc-700 bg-[#1a1a1a] px-5 py-4 text-white placeholder:text-zinc-600 focus:border-[#0066CC] focus:outline-none focus:ring-1 focus:ring-[#0066CC] transition-all"
               onKeyDown={(e) => e.key === 'Enter' && handleAnalyze()}
             />
           </div>
@@ -290,7 +304,7 @@ export default function AgentNetworkPage() {
           <button 
             onClick={handleAnalyze}
             disabled={isRunning || !query.trim()}
-            className="shrink-0 rounded-lg bg-emerald-600 px-8 py-4 font-bold uppercase tracking-wider text-white transition-all hover:bg-emerald-500 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="shrink-0 rounded-lg bg-[#0066CC] px-8 py-4 font-bold uppercase tracking-wider text-white transition-all hover:bg-[#0052a3] disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isRunning ? "Analyzing..." : "Analyze"}
           </button>
@@ -308,26 +322,43 @@ export default function AgentNetworkPage() {
           ))}
         </div>
         
-        <div className="mt-6 flex items-center justify-between border-t border-zinc-800 pt-4">
-          <div className="flex items-center gap-6">
+        <div className="mt-6 flex items-center justify-between border-t border-zinc-800 pt-4 overflow-x-auto">
+          <div className="flex items-center gap-6 whitespace-nowrap min-w-max">
             <div className="flex items-center gap-2">
-              <div className="h-2 w-2 rounded-full bg-emerald-500" />
-              <span className="text-xs font-bold text-zinc-400 tracking-wider">OMEGACLAW CONNECTED</span>
+              <div className="h-2 w-2 rounded-full bg-[#0066CC]" />
+              <span className="text-[10px] font-bold text-zinc-400 tracking-wider">ASI:ONE CONNECTED</span>
             </div>
             <div className="flex items-center gap-2">
               <div className="h-2 w-2 rounded-full bg-emerald-500" />
-              <span className="text-xs font-bold text-zinc-400 tracking-wider">4 AGENTS ONLINE</span>
+              <span className="text-[10px] font-bold text-zinc-400 tracking-wider">4 AGENTS ONLINE</span>
             </div>
             <div className="flex items-center gap-2">
               <div className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
-              <span className="text-xs font-bold text-zinc-400 tracking-wider">AGENTVERSE LIVE</span>
+              <span className="text-[10px] font-bold text-zinc-400 tracking-wider">AGENTVERSE LIVE</span>
+            </div>
+            <div className="h-4 w-px bg-zinc-800 mx-2" />
+            <div className="flex gap-4">
+              {agentsList.map(agent => (
+                <div key={agent.name} className="flex items-center gap-1.5">
+                  <span className="text-[10px] text-zinc-500 uppercase">{agent.name}:</span>
+                  <span className="text-[10px] font-mono text-zinc-400">{shortenAddress(agent.address)}</span>
+                  <a 
+                    href={`https://agentverse.ai/agents/${agent.address}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-[10px] text-[#0066CC] hover:underline"
+                  >
+                    View
+                  </a>
+                </div>
+              ))}
             </div>
           </div>
           <button 
             onClick={resetState}
-            className="text-xs font-bold text-zinc-500 hover:text-white transition-colors uppercase"
+            className="text-[10px] font-bold text-zinc-500 hover:text-white transition-colors uppercase ml-6 whitespace-nowrap"
           >
-            Reset Environment
+            Reset
           </button>
         </div>
       </div>
@@ -341,26 +372,29 @@ export default function AgentNetworkPage() {
         )}
         
         <div className="flex items-center justify-between overflow-x-auto pb-4 pt-8 px-4 custom-scrollbar">
-          {/* OmegaClaw Node */}
+          {/* ASI:One Node */}
           <div className="flex flex-col items-center shrink-0 w-[160px]">
-            <div className="relative w-full rounded-xl border-2 border-[#7c3aed]/50 bg-[#111] p-4 shadow-[0_0_20px_rgba(124,58,237,0.15)] flex flex-col items-center">
-              <div className="mb-2 flex h-10 w-10 items-center justify-center rounded-full bg-[#7c3aed]">
-                <span className="text-lg font-bold text-white">Ω</span>
+            <div className="relative w-full rounded-xl border-2 border-[#0066CC]/50 bg-[#111] p-4 shadow-[0_0_20px_rgba(0,102,204,0.15)] flex flex-col items-center">
+              <div className="mb-2 flex h-10 w-10 items-center justify-center rounded-full bg-[#0066CC]">
+                <div className="h-6 w-6 rounded-full border-2 border-white/80 flex items-center justify-center">
+                  <span className="text-sm font-bold text-white">A</span>
+                </div>
               </div>
-              <h3 className="font-bold text-white uppercase text-sm mb-1">OmegaClaw</h3>
-              <span className={`mb-3 rounded px-2 py-0.5 text-[10px] font-black tracking-wider uppercase ${getStatusColor(omegaStatus)}`}>
-                {omegaStatus}
+              <h3 className="font-bold text-white uppercase text-sm mb-1">ASI:ONE</h3>
+              <p className="text-[9px] text-zinc-500 mb-2">Fetch.ai LLM Gateway</p>
+              <span className={`mb-3 rounded px-2 py-0.5 text-[10px] font-black tracking-wider uppercase ${getStatusColor(asiStatus)}`}>
+                {asiStatus}
               </span>
               <div className="w-full h-16 bg-[#1a1a1a] rounded p-2 overflow-hidden text-[10px] text-zinc-300 leading-tight">
-                {query ? <span className="text-[#7c3aed]">"{query.substring(0, 60)}{query.length > 60 ? '...' : ''}"</span> : "Waiting for query..."}
+                {query ? <span className="text-[#0066CC]">"{query.substring(0, 60)}{query.length > 60 ? '...' : ''}"</span> : "Waiting for query..."}
               </div>
             </div>
           </div>
 
-          {/* Arrow 1 */}
+          {/* Arrow 1: ASI -> Orchestrator (Blue) */}
           <div className="flex-1 min-w-[60px] relative h-0.5 flex items-center shrink-0">
-            <div className={`w-full h-0.5 ${activeArrows['omega-orch'] || doneArrows['omega-orch'] ? 'bg-emerald-500' : 'bg-zinc-700 dashed-border'}`} style={{ borderTop: !(activeArrows['omega-orch'] || doneArrows['omega-orch']) ? '2px dashed #3f3f46' : 'none' }}></div>
-            {activeArrows['omega-orch'] && <div className="absolute h-2 w-2 rounded-full bg-emerald-400 travel-dot shadow-[0_0_8px_#34d399] -mt-1"></div>}
+            <div className={`w-full h-0.5 ${activeArrows['asi-orch'] || doneArrows['asi-orch'] ? 'bg-[#0066CC]' : 'bg-zinc-700 dashed-border'}`} style={{ borderTop: !(activeArrows['asi-orch'] || doneArrows['asi-orch']) ? '2px dashed #3f3f46' : 'none' }}></div>
+            {activeArrows['asi-orch'] && <div className="absolute h-2 w-2 rounded-full bg-[#0066CC] travel-dot shadow-[0_0_8px_#0066CC] -mt-1"></div>}
           </div>
 
           {/* Orchestrator Node */}
@@ -368,7 +402,7 @@ export default function AgentNetworkPage() {
             <div className={`relative w-full rounded-xl border border-zinc-700 bg-[#111] p-4 transition-all duration-300 ${agents.orchestrator === 'processing' ? 'border-emerald-500/50 shadow-[0_0_15px_rgba(16,185,129,0.15)]' : ''} flex flex-col items-center`}>
               <div className="mb-2 text-2xl">🌐</div>
               <h3 className="font-bold text-white uppercase text-sm mb-1">Orchestrator</h3>
-              <p className="text-[9px] text-zinc-500 mb-2 font-mono">agent1qx8...v42p</p>
+              <p className="text-[9px] text-zinc-500 mb-2 font-mono">{shortenAddress("agent1qtg9u5nhc7mx89j5xwx397pdz3jn05g4h4rlzkk0pg2jqu5s2h3k5jhdwwm")}</p>
               <span className={`mb-3 rounded px-2 py-0.5 text-[10px] font-black tracking-wider uppercase ${getStatusColor(agents.orchestrator)}`}>
                 {agents.orchestrator}
               </span>
@@ -389,7 +423,7 @@ export default function AgentNetworkPage() {
             <div className={`relative w-full rounded-xl border border-zinc-700 bg-[#111] p-4 transition-all duration-300 ${agents.proposer === 'processing' ? 'border-emerald-500/50 shadow-[0_0_15px_rgba(16,185,129,0.15)]' : ''} flex flex-col items-center`}>
               <div className="mb-2 text-2xl">📋</div>
               <h3 className="font-bold text-white uppercase text-sm mb-1">Proposer</h3>
-              <p className="text-[9px] text-zinc-500 mb-2 font-mono">agent1qtz...a9mk</p>
+              <p className="text-[9px] text-zinc-500 mb-2 font-mono">{shortenAddress("agent1q0ttw5lddhp90m0nr335v2m202ns358vqz3wp2ygf8xvp06ugzzyuvg3hnj")}</p>
               <span className={`mb-3 rounded px-2 py-0.5 text-[10px] font-black tracking-wider uppercase ${getStatusColor(agents.proposer)}`}>
                 {agents.proposer}
               </span>
@@ -410,7 +444,7 @@ export default function AgentNetworkPage() {
             <div className={`relative w-full rounded-xl border border-zinc-700 bg-[#111] p-4 transition-all duration-300 ${agents.verifier === 'processing' ? 'border-emerald-500/50 shadow-[0_0_15px_rgba(16,185,129,0.15)]' : ''} flex flex-col items-center`}>
               <div className="mb-2 text-2xl">✅</div>
               <h3 className="font-bold text-white uppercase text-sm mb-1">Verifier</h3>
-              <p className="text-[9px] text-zinc-500 mb-2 font-mono">agent1q9q...2b11</p>
+              <p className="text-[9px] text-zinc-500 mb-2 font-mono">{shortenAddress("agent1qfsxk0mf8m0xg3g7l6ptnrzztsgflehh69tqnt8kdahzgfyj9v7hgp4gu7w")}</p>
               <span className={`mb-3 rounded px-2 py-0.5 text-[10px] font-black tracking-wider uppercase ${getStatusColor(agents.verifier)}`}>
                 {agents.verifier}
               </span>
@@ -431,7 +465,7 @@ export default function AgentNetworkPage() {
             <div className={`relative w-full rounded-xl border border-zinc-700 bg-[#111] p-4 transition-all duration-300 ${agents.redteam === 'processing' ? 'border-emerald-500/50 shadow-[0_0_15px_rgba(16,185,129,0.15)]' : ''} flex flex-col items-center`}>
               <div className="mb-2 text-2xl">🔴</div>
               <h3 className="font-bold text-white uppercase text-sm mb-1">RedTeam</h3>
-              <p className="text-[9px] text-zinc-500 mb-2 font-mono">agent1qr3...m4df</p>
+              <p className="text-[9px] text-zinc-500 mb-2 font-mono">{shortenAddress("agent1qgyumnxqcyfwujqyxly8gdr6xj9akvkvq24679uv6gcl9uzcwjeyglnqrue")}</p>
               <span className={`mb-3 rounded px-2 py-0.5 text-[10px] font-black tracking-wider uppercase ${getStatusColor(agents.redteam)}`}>
                 {agents.redteam}
               </span>
